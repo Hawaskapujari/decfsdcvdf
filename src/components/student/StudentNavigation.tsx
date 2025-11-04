@@ -34,6 +34,7 @@ export default function StudentNavigation({ activePage, onNavigate, onLogout }: 
     { id: 'library', label: 'Library', icon: BookOpen },
     { id: 'homework', label: 'Homework', icon: FileText },
     { id: 'results', label: 'Results', icon: BarChart3 },
+    { id: 'tests', label: 'Tests', icon: FileText },
     { id: 'attendance', label: 'Attendance', icon: Calendar },
     { id: 'chat', label: 'Class Chat', icon: MessageCircle },
     { id: 'voicelink', label: 'VoiceLink', icon: Heart },

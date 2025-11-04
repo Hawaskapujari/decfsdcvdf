@@ -64,6 +64,16 @@ export default function AdminNavigation({ activePage, onNavigate, onLogout }: Ad
         { id: 'submissions', label: 'Submissions', icon: FileText },
       ]
     },
+    { 
+      id: 'tests', 
+      label: 'Tests', 
+      icon: FileText,
+      children: [
+        { id: 'tests', label: 'All Tests', icon: List },
+        { id: 'tests-create', label: 'Create Test', icon: Plus },
+        { id: 'test-results', label: 'Results', icon: BarChart3 },
+      ]
+    },
     { id: 'results', label: 'Results', icon: BarChart3 },
     { id: 'attendance', label: 'Attendance', icon: Calendar },
     { 
@@ -76,9 +86,25 @@ export default function AdminNavigation({ activePage, onNavigate, onLogout }: Ad
       ]
     },
     { id: 'voicelink', label: 'VoiceLink', icon: Heart },
-    { id: 'messages', label: 'Messages', icon: MessageCircle },
+    { 
+      id: 'messages', 
+      label: 'Messages', 
+      icon: MessageCircle,
+      children: [
+        { id: 'messages', label: 'Class Chats', icon: MessageCircle },
+        { id: 'broadcast', label: 'Broadcast', icon: Bell },
+      ]
+    },
     { id: 'ai-queries', label: 'AI Queries', icon: Brain },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { 
+      id: 'settings', 
+      label: 'Settings', 
+      icon: Settings,
+      children: [
+        { id: 'settings', label: 'General Settings', icon: Settings },
+        { id: 'api-keys', label: 'API Keys', icon: Settings },
+      ]
+    },
   ]
 
   const renderNavigationItem = (item: any, isChild = false) => {

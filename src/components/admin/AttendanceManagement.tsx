@@ -111,7 +111,6 @@ export default function AttendanceManagement() {
   const handleAttendanceChange = async (studentId: string, isPresent: boolean) => {
     if (!admin || !selectedDate || !selectedSubject) return
 
-    setSaving(true)
     try {
       const existingAttendance = getAttendanceForStudent(studentId)
       
@@ -131,6 +130,9 @@ export default function AttendanceManagement() {
               ? { ...a, is_present: isPresent }
               : a
           ))
+          // Show success feedback
+          const studentName = students.find(s => s.id === studentId)?.name
+          console.log(`${studentName} marked as ${isPresent ? 'present' : 'absent'}`)
         }
       } else {
         // Create new record
@@ -151,12 +153,14 @@ export default function AttendanceManagement() {
 
         if (data && !error) {
           setAttendance(prev => [...prev, data])
+          // Show success feedback
+          const studentName = students.find(s => s.id === studentId)?.name
+          console.log(`${studentName} marked as ${isPresent ? 'present' : 'absent'}`)
         }
       }
     } catch (error) {
       console.error('Error updating attendance:', error)
-    } finally {
-      setSaving(false)
+      alert('Failed to update attendance. Please try again.')
     }
   }
 

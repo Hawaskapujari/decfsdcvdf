@@ -65,10 +65,11 @@ export default function ChatModule() {
       if (!error) {
         setNewMessage('')
         // Reload messages to get the new one
-        loadMessages(student.class_id)
+        await loadMessages(student.class_id)
       }
     } catch (error) {
       console.error('Error sending message:', error)
+      alert('Failed to send message. Please try again.')
     } finally {
       setSending(false)
     }

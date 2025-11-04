@@ -57,7 +57,7 @@ export default function NoticesManagement() {
       const noticeData = {
         ...formData,
         created_by: admin.id,
-        expiry_date: formData.expiry_date || null
+        expiry_date: formData.expiry_date ? new Date(formData.expiry_date).toISOString() : null
       }
 
       if (editingNotice) {

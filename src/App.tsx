@@ -11,6 +11,7 @@ import NoticesModule from './components/student/NoticesModule'
 import ChatModule from './components/student/ChatModule'
 import VoiceLinkModule from './components/student/VoiceLinkModule'
 import AIDoubtModule from './components/student/AIDoubtModule'
+import TestModule from './components/student/TestModule'
 import AdminDashboard from './components/admin/AdminDashboard'
 import AdminNavigation from './components/admin/AdminNavigation'
 import StudentsManagement from './components/admin/StudentsManagement'
@@ -21,6 +22,9 @@ import AttendanceManagement from './components/admin/AttendanceManagement'
 import NoticesManagement from './components/admin/NoticesManagement'
 import VoiceLinkManagement from './components/admin/VoiceLinkManagement'
 import AIQueriesManagement from './components/admin/AIQueriesManagement'
+import TestManagement from './components/admin/TestManagement'
+import MessagesManagement from './components/admin/MessagesManagement'
+import SettingsManagement from './components/admin/SettingsManagement'
 import type { Student, Admin } from './lib/supabase'
 
 type UserType = 'student' | 'admin' | null
@@ -66,6 +70,7 @@ function App() {
           {activePage === 'library' && <LibraryModule />}
           {activePage === 'homework' && <HomeworkModule />}
           {activePage === 'results' && <ResultsModule />}
+          {activePage === 'tests' && <TestModule />}
           {activePage === 'attendance' && <AttendanceModule />}
           {activePage === 'chat' && <ChatModule />}
           {activePage === 'voicelink' && <VoiceLinkModule />}
@@ -101,9 +106,14 @@ function App() {
           {activePage === 'notices' && <NoticesManagement />}
           {activePage === 'notices-create' && <NoticesManagement />}
           {activePage === 'voicelink' && <VoiceLinkManagement />}
+          {activePage === 'tests' && <TestManagement />}
+          {activePage === 'tests-create' && <TestManagement />}
+          {activePage === 'test-results' && <TestManagement />}
           {activePage === 'ai-queries' && <AIQueriesManagement />}
-          {activePage === 'messages' && <div className="p-6"><div className="bg-blue-50 rounded-lg p-6"><h2 className="text-xl font-bold text-blue-900 mb-2">Messages Module</h2><p className="text-blue-800">Direct messaging system coming soon...</p></div></div>}
-          {activePage === 'settings' && <div className="p-6"><div className="bg-purple-50 rounded-lg p-6"><h2 className="text-xl font-bold text-purple-900 mb-2">Settings Module</h2><p className="text-purple-800">System settings and configuration coming soon...</p></div></div>}
+          {activePage === 'messages' && <MessagesManagement />}
+          {activePage === 'broadcast' && <MessagesManagement />}
+          {activePage === 'settings' && <SettingsManagement />}
+          {activePage === 'api-keys' && <SettingsManagement />}
         </div>
       </div>
     )

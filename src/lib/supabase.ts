@@ -156,3 +156,36 @@ export interface AIQuery {
   created_at: string
   resolved_at?: string
 }
+
+export interface Test {
+  id: string
+  title: string
+  subject: string
+  class_id: string
+  duration_minutes: number
+  start_time: string
+  end_time: string
+  instructions: string
+  questions: {
+    question: string
+    options: string[]
+    correct_answer: string
+  }[]
+  is_active: boolean
+  created_by: string
+  created_at: string
+  class?: Class
+}
+
+export interface TestAttempt {
+  id: string
+  test_id: string
+  student_id: string
+  answers: string
+  score: number
+  max_score: number
+  time_taken: number
+  attempted_at: string
+  test?: Test
+  student?: Student
+}

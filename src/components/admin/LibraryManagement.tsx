@@ -24,7 +24,8 @@ export default function LibraryManagement() {
     isbn: '',
     total_copies: '1',
     description: '',
-    pdf_url: ''
+    pdf_url: '',
+    cover_image: ''
   })
 
   useEffect(() => {
@@ -198,7 +199,8 @@ export default function LibraryManagement() {
       isbn: '',
       total_copies: '1',
       description: '',
-      pdf_url: ''
+      pdf_url: '',
+      cover_image: ''
     })
     setEditingBook(null)
     setShowAddForm(false)
@@ -324,6 +326,17 @@ export default function LibraryManagement() {
                         value={formData.total_copies}
                         onChange={(e) => setFormData({...formData, total_copies: e.target.value})}
                         required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Cover Image URL
+                      </label>
+                      <Input
+                        type="url"
+                        value={formData.cover_image}
+                        onChange={(e) => setFormData({...formData, cover_image: e.target.value})}
+                        placeholder="https://example.com/cover.jpg"
                       />
                     </div>
                     <div>

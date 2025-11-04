@@ -12,6 +12,7 @@ export default function HomeworkModule() {
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [selectedHomework, setSelectedHomework] = useState<string | null>(null)
   const [submissionText, setSubmissionText] = useState('')
+  const [submissionFile, setSubmissionFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [student, setStudent] = useState<Student | null>(null)
@@ -66,20 +67,43 @@ export default function HomeworkModule() {
   }
 
   const submitHomework = async () => {
-    if (!student || !selectedHomework || !submissionText.trim()) return
+    if (!student || !selectedHomework || (!submissionText.trim() && !submissionFile)) return
 
     setSubmitting(true)
     try {
+      let attachmentUrl = ''
+      
+      // Upload file if provided
+      if (submissionFile) {
+        const fileExt = submissionFile.name.split('.').pop()
+        const fileName = `${student.id}-${selectedHomework}-${Date.now()}.${fileExt}`
+        const filePath = `homework-submissions/${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('homework-submissions')
+          .upload(filePath, submissionFile)
+
+        if (uploadError) throw uploadError
+
+        const { data } = supabase.storage
+          .from('homework-submissions')
+          .getPublicUrl(filePath)
+
+        attachmentUrl = data.publicUrl
+      }
+
       const { error } = await supabase
         .from('submissions')
         .insert({
           homework_id: selectedHomework,
           student_id: student.id,
-          submission_text: submissionText
+          submission_text: submissionText,
+          attachment_url: attachmentUrl
         })
 
       if (!error) {
         setSubmissionText('')
+        setSubmissionFile(null)
         setSelectedHomework(null)
         loadSubmissions(student.id)
         alert('Homework submitted successfully!')
@@ -295,15 +319,26 @@ export default function HomeworkModule() {
                           </div>
                           
                           <div className="flex items-center gap-2">
-                            <Input type="file" className="flex-1" />
+                            <Input 
+                              type="file" 
+                              className="flex-1"
+                              accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                              onChange={(e) => setSubmissionFile(e.target.files?.[0] || null)}
+                            />
                             <Button variant="outline" size="sm">
                               <Upload className="h-4 w-4" />
                             </Button>
                           </div>
                           
+                          {submissionFile && (
+                            <p className="text-sm text-green-600">
+                              Selected: {submissionFile.name}
+                            </p>
+                          )}
+                          
                           <Button 
                             onClick={submitHomework}
-                            disabled={submitting || !submissionText.trim() || isOverdue(hw.deadline)}
+                            disabled={submitting || (!submissionText.trim() && !submissionFile) || isOverdue(hw.deadline)}
                             className="w-full"
                           >
                             {submitting ? 'Submitting...' : 

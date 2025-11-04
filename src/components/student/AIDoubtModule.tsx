@@ -99,37 +99,49 @@ export default function AIDoubtModule() {
   }
 
   const generateAIResponse = async (query: string, subject: string): Promise<string> => {
-    // In production, replace this with actual OpenAI API call
-    // const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY
-    // const openaiModel = import.meta.env.VITE_OPENAI_MODEL || 'gpt-3.5-turbo'
+    try {
+      // Get API key from settings
+      const { data: settings } = await supabase
+        .from('settings')
+        .select('openrouter_api_key')
+        .single()
+
+      if (settings?.openrouter_api_key) {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${settings.openrouter_api_key}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': window.location.origin,
+            'X-Title': 'SOSE School Portal'
+          },
+          body: JSON.stringify({
+            model: 'openai/gpt-3.5-turbo',
+            messages: [
+              {
+                role: 'system',
+                content: `You are a helpful AI tutor for ${subject} subject. Provide clear, educational responses to student questions. Keep responses concise but informative.`
+              },
+              {
+                role: 'user',
+                content: query
+              }
+            ],
+            max_tokens: 500,
+            temperature: 0.7
+          })
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          return data.choices[0].message.content + '\n\nWould you like me to forward this to your subject teacher for additional guidance?'
+        }
+      }
+    } catch (error) {
+      console.error('Error calling OpenRouter API:', error)
+    }
     
-    // Example OpenAI API integration:
-    // const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Authorization': `Bearer ${openaiApiKey}`,
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify({
-    //     model: openaiModel,
-    //     messages: [
-    //       {
-    //         role: 'system',
-    //         content: `You are a helpful AI tutor for ${subject} subject. Provide clear, educational responses to student questions.`
-    //       },
-    //       {
-    //         role: 'user',
-    //         content: query
-    //       }
-    //     ],
-    //     max_tokens: 500,
-    //     temperature: 0.7
-    //   })
-    // })
-    // const data = await response.json()
-    // return data.choices[0].message.content
-    
-    // Simulate AI processing delay
+    // Fallback response if API key not configured or API fails
     await new Promise(resolve => setTimeout(resolve, 2000))
     
     // Fallback response generation for demo

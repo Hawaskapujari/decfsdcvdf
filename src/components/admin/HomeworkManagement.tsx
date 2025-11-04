@@ -506,6 +506,20 @@ export default function HomeworkManagement() {
                             const grade = parseInt(gradeInput.value)
                             const feedback = feedbackInput.value
                             
+                            {submission.attachment_url && (
+                              <div className="mt-2">
+                                <a 
+                                  href={submission.attachment_url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center text-blue-600 hover:underline text-sm"
+                                >
+                                  <Eye className="h-4 w-4 mr-1" />
+                                  View Attachment
+                                </a>
+                              </div>
+                            )}
+                            
                             if (grade >= 0 && grade <= 100) {
                               handleGradeSubmission(submission.id, grade, feedback)
                             } else {

@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
-import { BookOpen, Search, Download, Clock, CheckCircle, AlertCircle, Eye } from 'lucide-react'
+import { BookOpen, Search, Download, Clock, CheckCircle, AlertCircle, Eye, ArrowLeft, Star, Calendar, User } from 'lucide-react'
 import type { Book, BorrowRequest, Student } from '../../lib/supabase'
 
 export default function LibraryModule() {
@@ -100,6 +100,134 @@ export default function LibraryModule() {
   })
 
   const subjects = ['all', ...Array.from(new Set(books.map(book => book.subject).filter(Boolean)))]
+
+  if (selectedBook) {
+    return (
+      <div className="p-6 space-y-6">
+        {/* Book Detail Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <Button variant="outline" onClick={() => setSelectedBook(null)}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Library
+          </Button>
+        </div>
+
+        {/* Book Detail */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Book Cover and Actions */}
+          <div className="lg:col-span-1">
+            <Card>
+              <CardContent className="p-6">
+                <div className="h-64 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg mb-4 flex items-center justify-center">
+                  {selectedBook.cover_image ? (
+                    <img src={selectedBook.cover_image} alt={selectedBook.title} className="w-full h-full object-cover rounded-lg" />
+                  ) : (
+                    <BookOpen className="h-16 w-16 text-blue-600" />
+                  )}
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Availability</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      selectedBook.available_copies > 0 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {selectedBook.available_copies}/{selectedBook.total_copies} Available
+                    </span>
+                  </div>
+                  
+                  <Button 
+                    className="w-full"
+                    disabled={selectedBook.available_copies === 0 || borrowedBooks.some(req => req.book_id === selectedBook.id)}
+                    onClick={() => requestBook(selectedBook.id)}
+                  >
+                    {borrowedBooks.some(req => req.book_id === selectedBook.id) ? 'Already Requested' : 'Request Book'}
+                  </Button>
+                  
+                  {selectedBook.pdf_url && (
+                    <Button variant="outline" className="w-full">
+                      <Eye className="h-4 w-4 mr-2" />
+                      Preview PDF
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Book Information */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-2xl mb-2">{selectedBook.title}</CardTitle>
+                    <p className="text-lg text-gray-600 mb-2">by {selectedBook.author}</p>
+                    {selectedBook.subject && (
+                      <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                        {selectedBook.subject}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Star className="h-5 w-5 text-yellow-500 fill-current" />
+                    <span className="text-sm text-gray-600">4.5</span>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">ISBN:</span>
+                    <p className="text-sm text-gray-600">{selectedBook.isbn || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Total Copies:</span>
+                    <p className="text-sm text-gray-600">{selectedBook.total_copies}</p>
+                  </div>
+                </div>
+                
+                {selectedBook.description && (
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Description</h4>
+                    <p className="text-gray-700 leading-relaxed">{selectedBook.description}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Additional Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Book Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Calendar className="h-5 w-5 text-gray-400" />
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Added to Library:</span>
+                      <p className="text-sm text-gray-600">{new Date(selectedBook.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <User className="h-5 w-5 text-gray-400" />
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Currently Borrowed:</span>
+                      <p className="text-sm text-gray-600">{selectedBook.total_copies - selectedBook.available_copies} students</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
@@ -254,9 +382,9 @@ export default function LibraryModule() {
                       size="sm" 
                       className="flex-1"
                       disabled={!canRequest}
-                      onClick={() => requestBook(book.id)}
+                      onClick={() => setSelectedBook(book)}
                     >
-                      {isAlreadyRequested ? 'Already Requested' : 'Request Book'}
+                      View Details
                     </Button>
                     
                     {book.pdf_url && (

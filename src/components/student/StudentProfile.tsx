@@ -38,13 +38,85 @@ export default function StudentProfile() {
         .eq('id', student.id)
 
       if (!error) {
-        setStudent(prev => prev ? { ...prev, bio, email, phone } : null)
+        // Update the current user in auth context
+        const updatedStudent = { ...student, bio, email, phone }
+        setStudent(updatedStudent)
+        setCurrentUser({ ...updatedStudent, userType: 'student' })
         setIsEditing(false)
+        alert('Profile updated successfully!')
+      } else {
+        alert('Failed to update profile. Please try again.')
       }
     } catch (error) {
       console.error('Error saving profile:', error)
+      alert('An error occurred while updating your profile.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file || !student) return
+
+    setUploadingPhoto(true)
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${student.id}-${Math.random()}.${fileExt}`
+      const filePath = `profile-photos/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('profile-photos')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      const { data } = supabase.storage
+        .from('profile-photos')
+        .getPublicUrl(filePath)
+
+      const photoUrl = data.publicUrl
+
+      const { error: updateError } = await supabase
+        .from('students')
+        .update({ profile_photo: photoUrl })
+        .eq('id', student.id)
+
+      if (!updateError) {
+        setProfilePhoto(photoUrl)
+        const updatedStudent = { ...student, profile_photo: photoUrl }
+        setStudent(updatedStudent)
+        setCurrentUser({ ...updatedStudent, userType: 'student' })
+        alert('Profile photo updated successfully!')
+      }
+    } catch (error) {
+      console.error('Error uploading photo:', error)
+      alert('Failed to upload photo. Please try again.')
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
+
+  const requestProfileUpdate = async () => {
+    if (!student) return
+
+    try {
+      const { error } = await supabase
+        .from('profile_update_requests')
+        .insert({
+          student_id: student.id,
+          requested_changes: 'Profile update assistance needed',
+          status: 'pending'
+        })
+
+      if (!error) {
+        alert('Profile update request sent to admin successfully!')
+      } else {
+        alert('Failed to send request. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error requesting profile update:', error)
+      alert('An error occurred while sending the request.')
     }
   }
 
@@ -61,13 +133,32 @@ export default function StudentProfile() {
       {/* Profile Header */}
       <Card>
         <CardHeader className="text-center">
-          <div className="mx-auto h-24 w-24 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-            <User className="h-12 w-12 text-white" />
+          <div className="mx-auto h-24 w-24 bg-blue-600 rounded-full flex items-center justify-center mb-4 relative overflow-hidden">
+            {profilePhoto ? (
+              <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <User className="h-12 w-12 text-white" />
+            )}
+            <label className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity">
+              <Upload className="h-6 w-6 text-white" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="hidden"
+                disabled={uploadingPhoto}
+              />
+            </label>
           </div>
+          {uploadingPhoto && <p className="text-sm text-blue-600">Uploading photo...</p>}
           <CardTitle className="text-2xl">{student?.name}</CardTitle>
           <p className="text-gray-600">
             Class: {student?.class?.name} | Roll No: {student?.roll_number}
           </p>
+          <Button variant="outline" size="sm" onClick={requestProfileUpdate} className="mt-2">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Request Admin Help
+          </Button>
         </CardHeader>
       </Card>
 
